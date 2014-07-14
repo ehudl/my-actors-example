@@ -1,6 +1,6 @@
 package lev.ehud.actors.game
 
-import lev.ehud.actors.game.ChatSearch.SongInput
+import lev.ehud.actors.game.TextSearch.SongInput
 import akka.actor.{ OneForOneStrategy, Props, ActorRef, Actor }
 import Actor._
 import collection.mutable.{HashMap, Map}
@@ -8,7 +8,7 @@ import akka.actor.ActorSystem
 import akka.actor.Props
 
 import akka.actor.ActorRef
-import ChatSearch._
+import TextSearch._
 
 /**
  * Created with IntelliJ IDEA.
@@ -51,8 +51,6 @@ object songMain extends App{
 
   def chatSearch() {
 
-    val source = scala.io.Source.fromFile("resources/test.txt")
-    val document = source.getLines()
 
     val system = ActorSystem("chatSearch")
 
@@ -73,12 +71,17 @@ object songMain extends App{
       if (couple.size < 2) {
         songManager ! SearchOnAllSong(str)
       }else{
-        songManager ! SearchSong(couple(0),couple(1))
+        if (couple(1).length > 3) {
+          songManager ! SearchSong(couple(0), couple(1))
+        }else{
+          val word = couple(1)
+          println(s"got [$word]word must be bigger than 3 characters ")
+        }
       }
     }
     println("shutting down")
 
     system.shutdown
-    source.close()
+
   }
 }

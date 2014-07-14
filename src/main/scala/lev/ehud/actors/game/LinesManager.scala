@@ -8,13 +8,13 @@ import akka.actor.Props
 import akka.routing.Router
 import akka.routing.RoundRobinRouter
 import akka.routing.Broadcast
-import ChatSearch._
+import TextSearch._
 
 
 object mian extends App{
    // val source = scala.io.Source.fromFile("resources/test.txt")
    // val document = source.getLines()
-    
+    println(System.getProperty("akka.actor.provider"))
     val system = ActorSystem("managerExample")
     
     val printer = system.actorOf(Props[Printer], "printer")    
@@ -28,7 +28,7 @@ object mian extends App{
     println("stating word search - please enter word:")
     
     while (!str.equals("exit")){
-      str = scanner.nextLine()
+      str = scanner.nextLine().split(" ")(0)
       linerManager ! Find(str)
     }
     println("shutting down")
@@ -43,19 +43,19 @@ class LinesManager extends Actor {
 	
     val nrOfWorkers = 6    
     
-    val router1 = context.actorOf(Props[LineSearchActor].withRouter(RoundRobinRouter(nrOfInstances = nrOfWorkers)))
+    val router = context.actorOf(Props[LineSearchActor].withRouter(RoundRobinRouter(nrOfInstances = nrOfWorkers)))
     
     def receive = {
       case LinesInput(lines : Iterator[String]) =>
         for (line <- lines){
           if (!line.isEmpty){            
-            router1 ! Line(line)
+            router ! Line(line)
           }
         }
       case Find(word: String) =>  {
-          val p: Props = Aggregator1.props(nrOfWorkers, word)
-          val aggregator = context.actorOf(p,"AggFor_"+word)       
-          router1 ! Broadcast(FindToLiners(word,aggregator))          
+          val p: Props = Aggregator.props(nrOfWorkers, word)
+          val aggregator = context.actorOf(p,"AggFor_"+word + System.currentTimeMillis())
+          router ! Broadcast(FindInLines(word,aggregator))
       }  
     }
     

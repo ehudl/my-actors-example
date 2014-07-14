@@ -16,28 +16,26 @@ import scala.util.Try
 import akka.util.Timeout
 import scala.actors.AskTimeoutException
 import akka.actor.ActorRef
-import lev.ehud.actors.game.ChatSearch.PrinterCommon._
+import lev.ehud.actors.game.TextSearch.PrinterCommon._
 
-import lev.ehud.actors.game.ChatSearch.{Dieing, FindResult}
-
-
+import lev.ehud.actors.game.TextSearch.{Dieing, FindResult}
 
 
 
-object Aggregator1{
+
+
+object Aggregator{
   
      def props( resultNumbers : Int , wordMatch: String): Props = 
-       Props(new Aggregator1(resultNumbers , wordMatch))
+       Props(new Aggregator(resultNumbers , wordMatch))
   }
 
-  class Aggregator1(resultNumbers : Int , wordMatch: String) extends Actor {
+  class Aggregator(resultNumbers : Int , wordMatch: String) extends Actor {
     
     import context.dispatcher
     var _lines = Set.empty[String]    
     var counter = 0
     var printer :ActorRef = context.parent
-//    val oneSecond : FiniteDuration = FiniteDuration(1 seconds)
-//    val threeSecond : FiniteDuration = FiniteDuration(3, seconds)
           
      override def preStart(){
       val futureActor = context.actorSelection(PRINTER_PATH).resolveOne(1 seconds)
