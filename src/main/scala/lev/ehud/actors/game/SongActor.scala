@@ -47,12 +47,12 @@ class SongActor extends Actor{
 
 object songMain extends App{
   val printerName = "Printer"
-  chatSearch()
+  songSearch()
 
-  def chatSearch() {
+  def songSearch() {
 
 
-    val system = ActorSystem("chatSearch")
+    val system = ActorSystem("songSearch")
 
     val printer = system.actorOf(Props[Printer], printerName)
 
@@ -61,6 +61,7 @@ object songMain extends App{
 
     songManager ! SongInput("1",scala.io.Source.fromFile("./src/main/resources/test.txt").getLines)
     songManager ! SongInput("2",scala.io.Source.fromFile("./src/main/resources/test2.txt").getLines)
+    songManager ! SongInput("3",scala.io.Source.fromFile("./src/main/resources/test3.txt").getLines)
     var str = ""
     val scanner = new java.util.Scanner(System.in)
     println("stating chat search - please enter <song> <word>:")

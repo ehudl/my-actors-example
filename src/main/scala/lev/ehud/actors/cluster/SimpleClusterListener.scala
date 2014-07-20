@@ -63,9 +63,6 @@ class SimpleClusterListener2 extends Actor with ActorLogging {
     //#subscribe
     cluster.subscribe(self,  classOf[MemberUp])
     cluster.join(cluster.selfAddress.copy(port = Some(12345)))
-
-
-
     //#subscribe
   }
   override def postStop(): Unit = cluster.unsubscribe(self)

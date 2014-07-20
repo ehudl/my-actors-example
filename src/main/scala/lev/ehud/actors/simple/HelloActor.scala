@@ -16,7 +16,7 @@ class HelloActor extends Actor {
 
   def receive = {
     case "hello" => println("hello back at you")
-    case _       => context.become(huh)
+    case _       => println("huh??");context.become(huh)
   }
 
   def huh: Receive = {
@@ -27,7 +27,6 @@ class HelloActor extends Actor {
 
 object Main extends App {
   val system = ActorSystem("HelloSystem")
-  // default Actor constructor
   val helloActor = system.actorOf(Props[HelloActor], name = "helloactor")
   helloActor ! "hello"
   helloActor ! "buenos dias"
