@@ -20,7 +20,7 @@ class HelloActor extends Actor {
   }
 
   def huh: Receive = {
-    case s : String => println(s"what is \"$s\" ?")
+    case s : String => println(s"what is [$s] ?")
   }
 
 }

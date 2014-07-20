@@ -16,6 +16,7 @@ import akka.cluster.ClusterEvent.MemberUp
 import scala.Some
 import akka.cluster.ClusterEvent.UnreachableMember
 import scala.concurrent.duration._
+import scala.util.Random
 
 /**
  * have been taken from  http://doc.akka.io/docs/akka/snapshot/scala/cluster-usage.html
@@ -31,9 +32,6 @@ class SimpleClusterListener extends Actor with ActorLogging {
     //#subscribe
     cluster.subscribe(self,  classOf[UnreachableMember])
     cluster.join(cluster.selfAddress)
-
-
-
     //#subscribe
   }
   override def postStop(): Unit = cluster.unsubscribe(self)
@@ -91,7 +89,24 @@ class SimpleClusterListener2 extends Actor with ActorLogging {
   }
 }
 //-Dakka.actor.provider=akka.cluster.ClusterActorRefProvider -Dakka.remote.transport=akka.remote.netty.NettyRemoteTransport -Dakka.remote.netty.tcp.port=12345
+
+object Utils{
+
+  val port: Int = 12345
+
+  val random = new Random()
+
+  def getNextPort() = port + random.nextInt(1000)
+
+  def setProperties(port: Int) {
+    System.setProperty("akka.actor.provider", "akka.cluster.ClusterActorRefProvider")
+    System.setProperty("akka.remote.transport", "akka.remote.netty.NettyRemoteTransport")
+    System.setProperty("akka.remote.netty.tcp.port", port + "")
+  }
+}
+
 object main1 extends App{
+  Utils.setProperties(Utils.port)
   val system = ActorSystem("simpleClusterActor")
   val cluster1 = system.actorOf(Props[SimpleClusterListener], "cluster1")
   val helloActor = system.actorOf(Props[HelloActor], name = "helloactor")
@@ -103,6 +118,7 @@ object main1 extends App{
 
 //-Dakka.actor.provider=akka.cluster.ClusterActorRefProvider -Dakka.remote.transport=akka.remote.netty.NettyRemoteTransport -Dakka.remote.netty.tcp.port=22345
 object main2 extends App{
+  Utils.setProperties(Utils.getNextPort)
   val system = ActorSystem("simpleClusterActor")
   val cluster2 = system.actorOf(Props[SimpleClusterListener2], "cluster2")
   Thread.sleep(1000 * 10)
@@ -117,6 +133,7 @@ object main2 extends App{
  
 
   Thread.sleep(1000 * 60)
+  cluster2 ! PoisonPill
   system.shutdown()
 
 }
