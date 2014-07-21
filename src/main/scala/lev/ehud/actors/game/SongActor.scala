@@ -130,50 +130,6 @@ object songMain extends App{
 
 }
 
-object songWithClustersMain extends App{
-  val printerName = "Printer"
-  Utils.setProperties(Utils.port)
-  val system = ActorSystem("songSearch")
 
-  val listener = system.actorOf(Props[SongClusterListener],"listener")
-
-  val printer = system.actorOf(Props[Printer], printerName)
-  songMainCommons.songSearch(system,false)
-  println("shutting down")
-  system.shutdown
-
-}
-
-object songAdderMain extends App{
-
-  Utils.setProperties(Utils.getNextPort())
-  val system = ActorSystem("songSearch")
-  val listener = system.actorOf(Props[SongClusterJoiner],"joiner")
-  val actorFinder = system.actorOf(Props(new ActorFinder(listener)),"finder")
-  Thread.sleep(2000)
-  val relativePath = "/user/game"
-  
-  val addSongsWithRuntimeActor = system.actorOf(Props(new Actor {
-    actorFinder ! GetActor(relativePath)
-    override def receive: Receive = {
-      case a: ActorFromRelativePath =>
-        println("got actor "+a.actor)
-        songMainCommons.addSongs(a.actor)
-
-    }
-  }))
-
-
-  Thread.sleep(1000 * 2)
-  addSongsWithRuntimeActor ! PoisonPill
-  listener ! PoisonPill
-  Thread.sleep(1000 * 2)
-  
-  system.shutdown()
-
-
-
-
-}
 
 
