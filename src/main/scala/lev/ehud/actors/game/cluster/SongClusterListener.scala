@@ -3,7 +3,7 @@ package lev.ehud.actors.game.cluster
 import akka.actor.{ActorRef, Address, ActorLogging, Actor}
 import akka.cluster.ClusterEvent.{MemberEvent, MemberRemoved, MemberUp, UnreachableMember}
 import akka.cluster.Cluster
-import lev.ehud.actors.cluster.GetOtherClusters
+import lev.ehud.actors.cluster.{ClusterUtils, GetOtherClusters}
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
@@ -36,7 +36,9 @@ abstract class ClusterListenerTrait extends Actor with ActorLogging {
   }
 }
 
-
+/**
+ * this is the first member which only join itself
+ */
 class SongClusterListener extends ClusterListenerTrait {
 
   // subscribe to cluster changes, re-subscribe when restart
@@ -51,12 +53,15 @@ class SongClusterListener extends ClusterListenerTrait {
 
 }
 
+/**
+ * This is the second listener or more that joins the default
+ */
 class SongClusterJoiner extends ClusterListenerTrait {
 
   //  subscribe to cluster changes, re-subscribe when restart
   override def preStart(): Unit = {
     cluster.subscribe(self,  classOf[MemberUp])
-    cluster.join(cluster.selfAddress.copy(port = Some(12345)))
+    cluster.join(cluster.selfAddress.copy(port = Some(ClusterUtils.port)))
 
   }
   override def postStop(): Unit = cluster.unsubscribe(self)
@@ -67,12 +72,13 @@ case class GetActor(relativePath : String)
 
 case class ActorFromRelativePath(relativePath : String, actor: ActorRef)
 
+/**
+ * This actor is incharge of lookup for actors in other clusters
+ * @param clusterListener
+ */
 class ActorFinder(clusterListener : ActorRef) extends Actor{
 
   var requests : Map[GetActor,Set[ActorRef]] = Map.empty
-
-
-
   override def receive: Receive = {
     case g: GetActor => {
       println("got GetActor")

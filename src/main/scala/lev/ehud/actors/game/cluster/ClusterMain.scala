@@ -1,6 +1,6 @@
 package lev.ehud.actors.game.cluster
 
-import lev.ehud.actors.cluster.Utils
+import lev.ehud.actors.cluster.ClusterUtils
 import akka.actor.{PoisonPill, Actor, Props, ActorSystem}
 import lev.ehud.actors.game._
 import lev.ehud.actors.game.TextSearch.Printer
@@ -10,10 +10,11 @@ import lev.ehud.actors.game.TextSearch.Printer
  * Created by ehud on 7/21/2014.
  *
  * This main is for starting the game without songs in it!!
+ * And with a cluster abilities on default port
  */
 object songWithClustersMain extends App{
   val printerName = "Printer"
-  Utils.setProperties(Utils.port)
+  ClusterUtils.setProperties(ClusterUtils.port)
   val system = ActorSystem("songSearch")
 
   val listener = system.actorOf(Props[SongClusterListener],"listener")
@@ -27,11 +28,12 @@ object songWithClustersMain extends App{
 
 /**
  * This main assumes that there is a game on the default port
- * and try to connect to the game and add songs
+ * and try to connect to the game and add songs.
+ *
+ * This is just to show how 2 actor system can talk with together
  */
 object songAdderMain extends App{
-
-  Utils.setProperties(Utils.getNextPort())
+  ClusterUtils.setProperties(ClusterUtils.getNextPort())
   val system = ActorSystem("songSearch")
   val listener = system.actorOf(Props[SongClusterJoiner],"joiner")
   val actorFinder = system.actorOf(Props(new ActorFinder(listener)),"finder")

@@ -86,8 +86,10 @@ class SimpleClusterListener2 extends Actor with ActorLogging {
   }
 }
 //-Dakka.actor.provider=akka.cluster.ClusterActorRefProvider -Dakka.remote.transport=akka.remote.netty.NettyRemoteTransport -Dakka.remote.netty.tcp.port=12345
-
-object Utils{
+/**
+ * This Utils are my way to avoid using external configurations since this is some kind of a demo
+ */
+object ClusterUtils{
 
   val port: Int = 12345
 
@@ -103,7 +105,7 @@ object Utils{
 }
 
 object main1 extends App{
-  Utils.setProperties(Utils.port)
+  ClusterUtils.setProperties(ClusterUtils.port)
   val system = ActorSystem("simpleClusterActor")
   val cluster1 = system.actorOf(Props[SimpleClusterListener], "cluster1")
   val helloActor = system.actorOf(Props[HelloActor], name = "helloactor")
@@ -115,7 +117,7 @@ object main1 extends App{
 
 //-Dakka.actor.provider=akka.cluster.ClusterActorRefProvider -Dakka.remote.transport=akka.remote.netty.NettyRemoteTransport -Dakka.remote.netty.tcp.port=22345
 object main2 extends App{
-  Utils.setProperties(Utils.getNextPort)
+  ClusterUtils.setProperties(ClusterUtils.getNextPort)
   val system = ActorSystem("simpleClusterActor")
   val cluster2 = system.actorOf(Props[SimpleClusterListener2], "cluster2")
   Thread.sleep(1000 * 10)
@@ -124,22 +126,12 @@ object main2 extends App{
   sender ! "hello"
   sender ! "what ever"
   sender ! "we are sending from what ever"
-
-
-
- 
-
   Thread.sleep(1000 * 60)
   cluster2 ! PoisonPill
   system.shutdown()
 
 }
 
-//object Sender {
-//  def props(simpleClusterListener: ActorRef) : Props = {
-//    Props(new Sender(simpleClusterListener))
-//  }
-//}
 
 class Sender(simpleClusterListener: ActorRef) extends Actor{
   

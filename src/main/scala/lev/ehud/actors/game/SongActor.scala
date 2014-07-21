@@ -6,7 +6,7 @@ import akka.actor.Actor._
 import collection.mutable.{HashMap, Map}
 
 import TextSearch._
-import lev.ehud.actors.cluster.Utils
+import lev.ehud.actors.cluster.ClusterUtils
 
 import akka.pattern.ask
 import akka.util.Timeout
