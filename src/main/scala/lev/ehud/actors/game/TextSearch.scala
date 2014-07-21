@@ -15,10 +15,10 @@ import scala.concurrent.duration._
 
 object TextSearch extends App{
 
-  case class SongInput(song: String ,document: Iterator[String])
+  case class SongInput(song: String ,document: List[String])
   case class SearchSong(song: String ,word: String)
   case class SearchOnAllSong(word: String)
-  case class LinesInput(document: Iterator[String])
+  case class LinesInput(document: List[String])
   case class Line(line: String)
   case class Find(word: String)
   case class FindInLines(word: String , ref : ActorRef)

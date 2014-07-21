@@ -21,7 +21,7 @@ object mian extends App{
     
     val linerManager = system.actorOf(Props[LinesManager])
     
-    linerManager ! LinesInput(scala.io.Source.fromFile("./src/main/resources/test.txt").getLines)
+    linerManager ! LinesInput(scala.io.Source.fromFile("./src/main/resources/test.txt").getLines.toList)
     
     var str = ""
     val scanner = new java.util.Scanner(System.in)
@@ -46,7 +46,7 @@ class LinesManager extends Actor {
     val router = context.actorOf(Props[LineSearchActor].withRouter(RoundRobinRouter(nrOfInstances = nrOfWorkers)))
     
     def receive = {
-      case LinesInput(lines : Iterator[String]) =>
+      case LinesInput(lines : List[String]) =>
         for (line <- lines){
           if (!line.isEmpty){            
             router ! Line(line)
